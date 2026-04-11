@@ -1,0 +1,17 @@
+# Mac-tiedostot
+.DS_Store
+
+# Claude
+.claude
+
+# Mistral Vibe
+.vibe
+
+# Ympäristötiedosto
+.env
+
+# Omat äänet
+voices/
+
+# python
+__pycache__/
