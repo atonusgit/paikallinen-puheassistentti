@@ -1,4 +1,4 @@
-"""Yhteinen apumoduuli aanivalintaan voices-kansiosta."""
+"""Yhteinen apumoduuli äänivalintaan voices-kansiosta."""
 
 import glob
 import os
@@ -11,7 +11,7 @@ VOICES_DIR = os.path.join(SCRIPT_DIR, "voices")
 
 
 def _read_key():
-    """Lue yksi nappainpainallus (tukee nuolinappaimia)."""
+    """Lue yksi näppäinpainallus (tukee nuolinäppäimiä)."""
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
     try:
@@ -34,10 +34,10 @@ def _read_key():
 
 
 def _render(names, selected):
-    """Piirra valintamenu."""
-    # Siirry ylös ja tyhjenna edelliset rivit
+    """Piirrä valintamenu."""
+    # Siirry ylös ja tyhjennä edelliset rivit
     sys.stdout.write(f"\x1b[{len(names) + 1}A")
-    sys.stdout.write("\x1b[2KValitse aani:\n")
+    sys.stdout.write("\x1b[2KValitse ääni:\n")
     for i, name in enumerate(names):
         if i == selected:
             sys.stdout.write(f"\x1b[2K  \x1b[7m > {name}\x1b[0m\n")
@@ -47,25 +47,25 @@ def _render(names, selected):
 
 
 def pick_voice():
-    """Listaa voices-kansion wav-tiedostot ja anna kayttajan valita
-    nuolinappaimilla. Palauttaa absoluuttisen polun tai None."""
+    """Listaa voices-kansion wav-tiedostot ja anna käyttäjän valita
+    nuolinäppäimillä. Palauttaa absoluuttisen polun tai None."""
     os.makedirs(VOICES_DIR, exist_ok=True)
     wavs = sorted(glob.glob(os.path.join(VOICES_DIR, "*.wav")))
 
     if not wavs:
-        print("Ei aanitiedostoja. Nauhoita ensin: python record_voice.py")
+        print("Ei äänitiedostoja. Nauhoita ensin: python record_voice.py")
         return None
 
     if len(wavs) == 1:
         name = os.path.basename(wavs[0])
-        print(f"Aani: {name}")
+        print(f"Ääni: {name}")
         return wavs[0]
 
     names = [os.path.basename(w) for w in wavs]
     selected = 0
 
-    # Piirra ensimmainen kerta
-    print("Valitse aani:")
+    # Piirrä ensimmäinen kerta
+    print("Valitse ääni:")
     for i, name in enumerate(names):
         if i == selected:
             print(f"  \x1b[7m > {name}\x1b[0m")
@@ -81,7 +81,7 @@ def pick_voice():
             selected = (selected + 1) % len(wavs)
             _render(names, selected)
         elif key == "enter":
-            # Tyhjenna invertointi ja tulosta valinta
+            # Tyhjennä invertointi ja tulosta valinta
             _render(names, selected)
             print(f"\nValittu: {names[selected]}")
             return wavs[selected]
@@ -91,7 +91,7 @@ def pick_voice():
 
 
 def resolve_ref(ref_arg, pick=False):
-    """Resolvoi referenssi-aanen polku."""
+    """Resolvoi referenssiäänen polku."""
     if ref_arg:
         if os.path.isabs(ref_arg):
             return ref_arg

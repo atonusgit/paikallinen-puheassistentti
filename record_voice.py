@@ -1,8 +1,8 @@
 """
-Nauhoita oma aanesi VoxCPM2:n referenssiksi.
-Kayttaa macOS:n sisaanrakennettua mikrofonia.
+Nauhoita oma äänesi VoxCPM2:n referenssiksi.
+Käyttää macOS:n sisäänrakennettua mikrofonia.
 
-Kaytto:
+Käyttö:
   python record_voice.py                  # oletus 8 sekuntia
   python record_voice.py --seconds 10     # 10 sekuntia
 """
@@ -17,14 +17,14 @@ VOICES_DIR = os.path.join(SCRIPT_DIR, "voices")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Nauhoita referenssi-aani")
+    parser = argparse.ArgumentParser(description="Nauhoita referenssiääni")
     parser.add_argument("--seconds", type=int, default=8, help="Nauhoituksen kesto sekunneissa")
     args = parser.parse_args()
 
     os.makedirs(VOICES_DIR, exist_ok=True)
 
-    # Kysy nimi aanelle
-    name = input("Anna aanelle nimi (esim. anton): ").strip().lower()
+    # Kysy nimi äänelle
+    name = input("Anna äänelle nimi (esim. anton): ").strip().lower()
     if not name:
         print("Nimi vaaditaan.")
         sys.exit(1)
@@ -33,10 +33,10 @@ def main():
 
     print(f"\nNauhoitetaan {args.seconds} sekuntia -> {output}")
     print("Puhu selkeasti ja tasaisesti, esim:")
-    print('  "Hei, nimeni on [nimi]. Testan tekoalyn puhesynteesia omalla aanellani."')
+    print('  "Hei, nimeni on [nimi]. Testaan tekoälyn puhesynteesiä omalla äänelläni."')
     print()
     input("Paina Enter kun olet valmis... ")
-    print(f"NAUHOITUS KAYNNISSA ({args.seconds}s)...")
+    print(f"NAUHOITUS KÄYNNISSÄ ({args.seconds}s)...")
 
     # macOS: kayta sox (rec) tai ffmpeg
     try:
@@ -61,7 +61,7 @@ def main():
             sys.exit(1)
 
     print(f"\nTallennettu: {output}")
-    print(f"\nKayta:")
+    print(f"\nKäytä:")
     print(f"  python say.py --ref {name}.wav")
     print(f"  python voice_assistant.py --ref {name}.wav --model gemma4 --lang fi")
 

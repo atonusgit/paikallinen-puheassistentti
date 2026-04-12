@@ -2,13 +2,13 @@
 Voice Assistant: Ollama LLM + VoxCPM2 TTS (fully pipelined)
 
 Kolmivaiheinen putki jossa kaikki tapahtuu rinnakkain:
-  1. LLM-saaie:  striimataan tokeneita, pilkotaan lauseisiin -> tts_queue
-  2. TTS-saaie:  generoidaan puhetta lauseista          -> play_queue
-  3. Play-saaie: toistetaan valmiita aanipatkia
+  1. LLM-säie:   striimataan tokeneita, pilkotaan lauseisiin -> tts_queue
+  2. TTS-säie:   generoidaan puhetta lauseista          -> play_queue
+  3. Play-säie:  toistetaan valmiita äänipätkiä
 
-Kaikki kolme vaihdetta pyorivat samanaikaisesti.
+Kaikki kolme vaihetta pyörivät samanaikaisesti.
 
-Kaytto:
+Käyttö:
   python voice_assistant.py --model gemma4 --lang fi
   python voice_assistant.py --model gemma4 --ref oma_aani.wav --lang fi
   python voice_assistant.py --model gemma4 --voice "A calm female voice"
@@ -54,7 +54,7 @@ def status_print(msg, done=False):
 
 
 def check_ollama():
-    status_print("Yhdistetaan Ollamaan...")
+    status_print("Yhdistetään Ollamaan...")
     try:
         r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=60)
         r.raise_for_status()
@@ -65,7 +65,7 @@ def check_ollama():
     except requests.ReadTimeout:
         pass
 
-    # Kaynnista Ollama taustalle (hiljenna GIN-lokit)
+    # Käynnistä Ollama taustalle (hiljennä GIN-lokit)
     try:
         subprocess.Popen(
             ["ollama", "serve"],
@@ -73,14 +73,14 @@ def check_ollama():
             stderr=subprocess.DEVNULL,
         )
     except FileNotFoundError:
-        status_print("VIRHE: Ollamaa ei loydy. Asenna: brew install ollama", done=True)
+        status_print("VIRHE: Ollamaa ei löydy. Asenna: brew install ollama", done=True)
         sys.exit(1)
 
-    # Odota etta Ollama vastaa
+    # Odota että Ollama vastaa
     for i in range(60):
         time.sleep(2)
         spin = SPINNER[i % len(SPINNER)]
-        status_print(f"{spin} Kaynnistetaan Ollamaa...")
+        status_print(f"{spin} Käynnistetään Ollamaa...")
         try:
             r = requests.get(f"{OLLAMA_URL}/api/tags", timeout=30)
             r.raise_for_status()
@@ -124,7 +124,7 @@ def play_audio(filepath):
 # --------------- Pipeline stages ---------------
 
 def llm_stage(model, messages, tts_queue, print_lock, llm_done_event):
-    """Vaihe 1: LLM striimataan tokeneita, kokonaiset lauseet -> tts_queue."""
+    """Vaihe 1: LLM striimaa tokeneita, kokonaiset lauseet -> tts_queue."""
     buffer = ""
     full_reply = ""
     first_token = True
@@ -171,7 +171,7 @@ def tts_stage(tts, tts_queue, play_queue, ref_wav, sample_rate, print_lock, llm_
             break
 
         total_sentences += 1
-        # Nayta TTS-status vasta kun AI-teksti on tulostettu loppuun
+        # Näytä TTS-status vasta kun AI-teksti on tulostettu loppuun
         if llm_done_event.is_set():
             with print_lock:
                 spin = SPINNER[chunk_idx % len(SPINNER)]
@@ -194,7 +194,7 @@ def tts_stage(tts, tts_queue, play_queue, ref_wav, sample_rate, print_lock, llm_
 
 
 def play_stage(play_queue, no_play, print_lock):
-    """Vaihe 3: Toista aanipatkia perakkaain."""
+    """Vaihe 3: Toista äänipätkiä peräkkäin."""
     files_played = []
     while True:
         filepath = play_queue.get()
@@ -211,11 +211,11 @@ def play_stage(play_queue, no_play, print_lock):
 def main():
     parser = argparse.ArgumentParser(description="Voice Assistant: Ollama + VoxCPM2 (pipelined)")
     parser.add_argument("--model", default="llama3.2", help="Ollama-malli")
-    parser.add_argument("--voice", default=None, help="Aanikuvaus, esim. 'A warm female voice'")
-    parser.add_argument("--ref", default=None, help="Referenssi-wav aanen kloonaukseen")
-    parser.add_argument("--pick", action="store_true", help="Valitse aani voices-kansiosta")
+    parser.add_argument("--voice", default=None, help="Äänikuvaus, esim. 'A warm female voice'")
+    parser.add_argument("--ref", default=None, help="Referenssi-wav äänen kloonaukseen")
+    parser.add_argument("--pick", action="store_true", help="Valitse ääni voices-kansiosta")
     parser.add_argument("--lang", default="en", help="Vastauksen kieli: en, fi, jne.")
-    parser.add_argument("--no-play", action="store_true", help="Ala toista aanta automaattisesti")
+    parser.add_argument("--no-play", action="store_true", help="Älä toista ääntä automaattisesti")
     args = parser.parse_args()
 
     models = check_ollama()
@@ -232,7 +232,7 @@ def main():
     status_print(f"VoxCPM2 valmis ({sample_rate} Hz)", done=True)
 
     lang_instruction = {
-        "fi": "Vastaa aina suomeksi. Pida vastaukset lyhyina ja selkeina.",
+        "fi": "Vastaa aina suomeksi. Pidä vastaukset lyhyinä ja selkeinä.",
         "en": "Keep your answers concise and clear.",
     }.get(args.lang, f"Reply in {args.lang}. Keep answers concise.")
 
@@ -243,9 +243,9 @@ def main():
     ref_wav = resolve_ref(args.ref, pick=args.pick)
 
     if ref_wav:
-        print(f"  Referenssi-aani: {ref_wav}")
+        print(f"  Referenssiääni: {ref_wav}")
     elif args.voice:
-        print(f"  Luodaan referenssi-aani: {args.voice}...")
+        print(f"  Luodaan referenssiääni: {args.voice}...")
         ref_audio = tts.generate(
             text=f"({args.voice})This is a warm up sentence to establish my voice.",
             cfg_value=2.0,
@@ -258,7 +258,7 @@ def main():
     print("=" * 50)
     print("  Voice Assistant — PIPELINED")
     print(f"  LLM: {args.model} | Kieli: {args.lang}")
-    print(f"  Aani: {'lukittu referenssiin' if ref_wav else 'lukitaan 1. vuorolla'}")
+    print(f"  Ääni: {'lukittu referenssiin' if ref_wav else 'lukitaan 1. vuorolla'}")
     print()
     print("  LLM -> TTS -> Play (kaikki rinnakkain)")
     print("  Kirjoita 'quit' lopettaaksesi")
@@ -267,9 +267,9 @@ def main():
     turn = 0
     while True:
         try:
-            user_input = input("\nSina> ").strip()
+            user_input = input("\nSinä> ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nNakemiin!")
+            print("\nNäkemiin!")
             break
 
         if not user_input:
@@ -288,7 +288,7 @@ def main():
         t0 = time.time()
         status_print(f"{SPINNER[0]} AI miettii...")
 
-        # Kaynnista kaikki 3 vaihetta rinnakkain
+        # Käynnistä kaikki 3 vaihetta rinnakkain
         llm_result = [None]
         play_result = [None]
 
@@ -315,7 +315,7 @@ def main():
 
         elapsed = time.time() - t0
         files = play_result[0] or []
-        print(f"  [{elapsed:.1f}s | {len(files)} aanipatkaa]")
+        print(f"  [{elapsed:.1f}s | {len(files)} äänipätkää]")
 
         if llm_result[0]:
             messages.append({"role": "assistant", "content": llm_result[0]})
@@ -325,7 +325,7 @@ def main():
             ref_wav = os.path.join(VOICES_DIR, "voice_reference.wav")
             import shutil
             shutil.copy2(files[0], ref_wav)
-            print(f"  Aani lukittu: {ref_wav}")
+            print(f"  Ääni lukittu: {ref_wav}")
 
         turn += 1
 

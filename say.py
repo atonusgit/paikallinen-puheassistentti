@@ -1,10 +1,10 @@
 """
 Nopea TTS: kirjoita teksti, VoxCPM2 puhuu sen.
-Ei LLM:aa, ei keskustelua — pelkka puhesynteesi.
+Ei LLM:ää, ei keskustelua — pelkkä puhesynteesi.
 
-Malli ladataan taustalla samalla kun kayttaja kirjoittaa tekstia.
+Malli ladataan taustalla samalla kun käyttäjä kirjoittaa tekstiä.
 
-Kaytto:
+Käyttö:
   python say.py --pick                        # valitse aani listalta
   python say.py --ref anton.wav "Hei maailma"
   python say.py --voice "A deep male voice" "Hello world"
@@ -47,15 +47,15 @@ def main():
     parser = argparse.ArgumentParser(description="VoxCPM2 puhu teksti")
     parser.add_argument("text", nargs="?", help="Teksti joka puhutaan")
     parser.add_argument("--ref", default=None, help="Referenssi-wav tiedostonimi")
-    parser.add_argument("--pick", action="store_true", help="Valitse aani voices-kansiosta")
-    parser.add_argument("--voice", default=None, help="Aanikuvaus")
+    parser.add_argument("--pick", action="store_true", help="Valitse ääni voices-kansiosta")
+    parser.add_argument("--voice", default=None, help="Äänikuvaus")
     parser.add_argument("-o", "--output", default=None, help="Tallenna tiedostoon")
     args = parser.parse_args()
 
     # Valitse aani
     ref_path = resolve_ref(args.ref, pick=args.pick)
 
-    # Kaynnista mallin lataus heti taustalle
+    # Käynnistä mallin lataus heti taustalle
     model_result = [None]
     model_ready = threading.Event()
 
@@ -66,7 +66,7 @@ def main():
     loader = threading.Thread(target=bg_load, daemon=True)
     loader.start()
 
-    # Nayta latausspinner kunnes malli valmis tai kayttaja kirjoittaa
+    # Näytä latausspinner kunnes malli valmis tai käyttäjä kirjoittaa
     def show_loading():
         i = 0
         while not model_ready.is_set():
@@ -92,7 +92,7 @@ def main():
                 spinner_thread.start()
                 spinner_thread.join()
             try:
-                text = input("Mita sanon? ").strip()
+                text = input("Mitä sanon? ").strip()
             except (EOFError, KeyboardInterrupt):
                 print("\nMoi!")
                 break
