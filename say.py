@@ -16,7 +16,6 @@ import platform
 import readline
 import subprocess
 import sys
-import tempfile
 import threading
 
 os.environ["TQDM_DISABLE"] = "1"
@@ -26,6 +25,7 @@ from voxcpm import VoxCPM
 from voice_picker import resolve_ref
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
 SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 CLEAR_LINE = "\033[2K\r"
 
@@ -116,8 +116,19 @@ def main():
         wav = tts.generate(**kwargs)
         print(f"{CLEAR_LINE}OK", flush=True)
 
-        outfile = args.output or os.path.join(tempfile.gettempdir(), "voxcpm_say.wav")
+        if args.output:
+            outfile = args.output
+        else:
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+            voice_name = os.path.splitext(os.path.basename(ref_path))[0] if ref_path else "say"
+            i = 1
+            while True:
+                outfile = os.path.join(OUTPUT_DIR, f"{voice_name}_{i:03d}.wav")
+                if not os.path.exists(outfile):
+                    break
+                i += 1
         sf.write(outfile, wav, sample_rate)
+        print(f"Tallennettu: {outfile}")
         play_audio(outfile)
 
 

@@ -13,6 +13,9 @@
 # Omat äänet
 voices/
 
+# Generoidut äänitiedostot
+output/
+
 # python
 __pycache__/
 .venv/
