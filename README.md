@@ -28,13 +28,17 @@ pip install voxcpm soundfile requests numpy
 source .venv/bin/activate && python record_voice.py
 ```
 
-## Käynnistys
+## Käyttö
+
+Äänen nauhoituksen jälkeen voit joko keskustella assistentin kanssa tai puhua yksittäisiä lauseita.
+
+### Käynnistä vuoropuhelu
 
 ```bash
 source .venv/bin/activate && python voice_assistant.py --pick --model gemma4 --lang fi
 ```
 
-## Sano jotain nopeasti
+### Sano mitä kirjoitan
 
 ```bash
 source .venv/bin/activate && python say.py --pick
