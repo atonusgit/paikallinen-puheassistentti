@@ -31,7 +31,7 @@ def main():
     name = name.replace(" ", "_")
     output = os.path.join(VOICES_DIR, f"{name}.wav")
 
-    print(f"\nNauhoitetaan {args.seconds} sekuntia -> {output}")
+    print(f"\nNauhoitetaan {args.seconds} sekuntia, 16 kHz mono -> {output}")
     print("Puhu selkeasti ja tasaisesti, esim:")
     print('  "Hei, nimeni on [nimi]. Testaan tekoälyn puhesynteesiä omalla äänelläni."')
     print()
