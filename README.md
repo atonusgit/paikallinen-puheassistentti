@@ -15,6 +15,7 @@ git clone git@github.com:atonusgit/paikallinen-puheassistentti.git
 cd paikallinen-puheassistentti
 
 brew install ollama sox python@3.12
+ollama serve &
 ollama pull gemma4
 
 python3.12 -m venv .venv
