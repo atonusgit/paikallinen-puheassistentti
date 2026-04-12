@@ -15,3 +15,4 @@ voices/
 
 # python
 __pycache__/
+.venv/
