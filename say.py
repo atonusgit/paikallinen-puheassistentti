@@ -11,9 +11,11 @@ Käyttö:
 """
 
 import argparse
+import json
 import os
 import platform
 import readline
+import socket
 import subprocess
 import sys
 import threading
@@ -26,6 +28,7 @@ from voice_picker import resolve_ref
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
+SOCKET_PATH = os.path.join(SCRIPT_DIR, ".sayd.sock")
 SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 CLEAR_LINE = "\033[2K\r"
 
@@ -43,6 +46,55 @@ def load_model():
     return tts
 
 
+def say_palvelimella(text, args, ref_path):
+    """Lähetä pyyntö sayd-palvelimelle. Palauttaa True jos onnistui."""
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.connect(SOCKET_PATH)
+            req = {
+                "text": text,
+                "ref": ref_path,
+                "voice": args.voice,
+                "output": args.output,
+            }
+            s.sendall((json.dumps(req) + "\n").encode("utf-8"))
+            data = bytearray()
+            while b"\n" not in data:
+                chunk = s.recv(4096)
+                if not chunk:
+                    break
+                data.extend(chunk)
+        rivi, _, _ = bytes(data).partition(b"\n")
+        resp = json.loads(rivi.decode("utf-8").strip())
+        if resp.get("ok"):
+            print(f"Tallennettu: {resp['outfile']}")
+            return True
+        print(f"Palvelinvirhe: {resp.get('error')}", file=sys.stderr)
+        return False
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"Pistokevirhe: {e}", file=sys.stderr)
+        return False
+
+
+def run_with_server(args, ref_path):
+    """Interaktiivinen tai yksittäinen ajo palvelimen kautta."""
+    if args.text:
+        ok = say_palvelimella(args.text, args, ref_path)
+        sys.exit(0 if ok else 1)
+    while True:
+        try:
+            text = input("Mitä sanon? ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nMoi!")
+            return
+        if not text:
+            continue
+        if text.lower() in ("quit", "exit", "q"):
+            print("Moi!")
+            return
+        say_palvelimella(text, args, ref_path)
+
+
 def main():
     parser = argparse.ArgumentParser(description="VoxCPM2 puhu teksti")
     parser.add_argument("text", nargs="?", help="Teksti joka puhutaan")
@@ -54,6 +106,10 @@ def main():
 
     # Valitse aani
     ref_path = resolve_ref(args.ref, pick=args.pick)
+
+    # Jos sayd-palvelin on käynnissä, käytä sitä
+    if os.path.exists(SOCKET_PATH):
+        return run_with_server(args, ref_path)
 
     # Käynnistä mallin lataus heti taustalle
     model_result = [None]
