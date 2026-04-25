@@ -82,6 +82,8 @@ def main():
         show_loading()
         loader.join()
 
+    one_shot = bool(first_text)
+
     while True:
         if first_text:
             text = first_text
@@ -130,6 +132,9 @@ def main():
         sf.write(outfile, wav, sample_rate)
         print(f"Tallennettu: {outfile}")
         play_audio(outfile)
+
+        if one_shot:
+            break
 
 
 if __name__ == "__main__":
