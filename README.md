@@ -20,7 +20,7 @@ ollama pull gemma4
 
 python3.12 -m venv .venv
 source .venv/bin/activate
-pip install voxcpm soundfile requests numpy
+pip3 install voxcpm soundfile requests numpy
 ```
 
 ## Nauhoita oma ääni (kerran)
@@ -45,12 +45,12 @@ source .venv/bin/activate && python voice_assistant.py --pick --model gemma4 --l
 
 ```bash
 # Terminaali 1 — palvelin (pidä auki)
-source .venv/bin/activate && python voxcpm2_server.py
+source .venv/bin/activate && python3 voxcpm2_server.py
 
 # Terminaali 2 — client
-source .venv/bin/activate && python say.py --pick
-python say.py --ref anton.wav "Hei maailma"
-python say.py --no-play -o /polku/foo.wav "Vain tiedostoon"
+source .venv/bin/activate && python3 say.py --pick
+python3 say.py --ref anton.wav "Hei maailma"
+python3 say.py --no-play -o /polku/foo.wav "Vain tiedostoon"
 ```
 
 Palvelin kuuntelee `127.0.0.1:8179`. Konttisovellukset (esim. `mactonus`-cron-skriptit) voivat kutsua sitä `host.docker.internal:8179` -aliaksen kautta.

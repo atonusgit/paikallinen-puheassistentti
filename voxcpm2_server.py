@@ -16,7 +16,6 @@ Vastaus:
 import json
 import os
 import platform
-import signal
 import subprocess
 import sys
 import threading
@@ -117,14 +116,12 @@ def main():
 
     palvelin = ThreadingHTTPServer((HOSTI, PORTTI), Kasittelija)
 
-    def sammuta(*_):
-        palvelin.shutdown()
-        sys.exit(0)
-
-    signal.signal(signal.SIGTERM, sammuta)
-    signal.signal(signal.SIGINT, sammuta)
-
-    palvelin.serve_forever()
+    try:
+        palvelin.serve_forever()
+    except KeyboardInterrupt:
+        print("\nSammutetaan...", flush=True)
+    finally:
+        palvelin.server_close()
 
 
 if __name__ == "__main__":
