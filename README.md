@@ -41,9 +41,19 @@ source .venv/bin/activate && python voice_assistant.py --pick --model gemma4 --l
 
 ### Sano mitä kirjoitan
 
+`say.py` on ohut HTTP-client; se vaatii että `voxcpm2_server.py` on käynnissä taustalla (lataa mallin kerran muistiin).
+
 ```bash
+# Terminaali 1 — palvelin (pidä auki)
+source .venv/bin/activate && python voxcpm2_server.py
+
+# Terminaali 2 — client
 source .venv/bin/activate && python say.py --pick
+python say.py --ref anton.wav "Hei maailma"
+python say.py --no-play -o /polku/foo.wav "Vain tiedostoon"
 ```
+
+Palvelin kuuntelee `127.0.0.1:8179`. Konttisovellukset (esim. `mactonus`-cron-skriptit) voivat kutsua sitä `host.docker.internal:8179` -aliaksen kautta.
 
 ## Sammutus
 
