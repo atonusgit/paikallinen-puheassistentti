@@ -19,6 +19,7 @@ import platform
 import subprocess
 import sys
 import threading
+import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 os.environ["TQDM_DISABLE"] = "1"
@@ -106,6 +107,8 @@ class Kasittelija(BaseHTTPRequestHandler):
                 outfile = generoi(self.tts, req)
             self._vastaa(200, {"ok": True, "outfile": outfile})
         except Exception as e:
+            traceback.print_exc(file=sys.stderr)
+            sys.stderr.flush()
             self._vastaa(500, {"ok": False, "error": f"{type(e).__name__}: {e}"})
 
 
